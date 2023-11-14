@@ -7,4 +7,9 @@ require 'Database.php';
 $config = require('config.php');
 
 $db = new Database($config['database']);
-dd($db->query("SELECT * FROM posts where id > 1")->fetch(PDO::FETCH_ASSOC));
+
+$id = $_GET['id'];
+$query = "SELECT * FROM posts where id = ?";
+
+
+dd($db->query($query, [$id])->fetch(PDO::FETCH_ASSOC));
