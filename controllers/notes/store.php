@@ -8,7 +8,6 @@ $db = App::resolve(Database::class);
 
 $errors = [];
 
-
 if (!Validator::string($_POST['body'], 1, 1_000)) {
   $errors['body'] = 'A body of no more than 1,000 characters is required.';
 }
