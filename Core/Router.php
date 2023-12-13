@@ -2,59 +2,75 @@
 
 namespace Core;
 
+use Core\Middleware\Middleware;
+
 class Router
 {
   protected $routes = [];
 
-  const METHOD_GET = 'GET';
-  const METHOD_POST = 'POST';
-  const METHOD_PUT = 'PUT';
-  const METHOD_PATCH = 'PATCH';
-  const METHOD_DELETE = 'DELETE';
+  private const GET = 'GET';
+  private const POST = 'POST';
+  private const PUT = 'PUT';
+  private const PATCH = 'PATCH';
+  private const DELETE = 'DELETE';
 
   public function add($uri, $controller, $method)
   {
     $this->routes[] = [
       'uri' => $uri,
       'controller' => $controller,
-      'method' => $method
+      'method' => $method,
+      'middleware' => null
     ];
+
+    return $this;
   }
 
   public function get($uri, $controller)
   {
-    $this->add($uri, $controller, self::METHOD_GET);
+    return $this->add($uri, $controller, self::GET);
   }
 
   public function post($uri, $controller)
   {
-    $this->add($uri, $controller, self::METHOD_POST);
+    return $this->add($uri, $controller, self::POST);
   }
 
   public function put($uri, $controller)
   {
-    $this->add($uri, $controller, self::METHOD_PUT);
+    return $this->add($uri, $controller, self::PUT);
   }
 
   public function patch($uri, $controller)
   {
-    $this->add($uri, $controller, self::METHOD_PATCH);
+    return $this->add($uri, $controller, self::PATCH);
   }
 
   public function delete($uri, $controller)
   {
-    $this->add($uri, $controller, self::METHOD_DELETE);
+    return $this->add($uri, $controller, self::DELETE);
   }
 
   public function route($uri, $method)
   {
     foreach ($this->routes as $route) {
       if ($route['uri'] === $uri && $route['method'] === strtoupper($method)) {
+        Middleware::resolve($route['middleware']);
+
         return require basePath($route['controller']);
       }
     }
     $this->abort();
   }
+
+  public function only($key)
+  {
+    $this->routes[array_key_last($this->routes)]['middleware'] = $key;
+
+    dd($this->routes);
+    return $this;
+  }
+
 
   protected function abort($code = 404)
   {
